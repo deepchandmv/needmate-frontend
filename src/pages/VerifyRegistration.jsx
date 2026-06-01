@@ -8,8 +8,7 @@ const VerifyRegistration = () => {
   const navigate = useNavigate();
   const email = location.state?.email || '';
   const devOtp = location.state?.simulatedOtp || null;
-  const emailWarning = location.state?.emailWarning || false;
-
+  const [emailWarning, setEmailWarning] = useState(location.state?.emailWarning || false);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -105,6 +104,7 @@ const VerifyRegistration = () => {
       const res = await axios.post(`${API_BASE}/api/auth/resend-registration-otp`, { email });
       setResendCooldown(30);
       setError('');
+      setEmailWarning(res.data.emailWarning || false);
       setSuccess('New verification code sent to your email!');
 
       // Dev mode: auto-fill new OTP
