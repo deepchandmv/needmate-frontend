@@ -8,6 +8,7 @@ const VerifyRegistration = () => {
   const navigate = useNavigate();
   const email = location.state?.email || '';
   const devOtp = location.state?.simulatedOtp || null;
+  const emailWarning = location.state?.emailWarning || false;
 
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -136,6 +137,14 @@ const VerifyRegistration = () => {
           </p>
           <p className="font-bold text-gray-900 mt-1">{email}</p>
         </div>
+
+        {/* Email Warning Notice */}
+        {emailWarning && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm text-center">
+            <p className="font-bold">⚠️ Email delivery was slow</p>
+            <p className="mt-1">If you don't receive the code within a minute, click <strong>"Resend Code"</strong> below.</p>
+          </div>
+        )}
 
         {/* Dev Mode Notice */}
         {resendOtp && (

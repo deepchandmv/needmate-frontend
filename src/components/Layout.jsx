@@ -55,12 +55,25 @@ const Layout = ({ children }) => {
       return;
     }
     fetchUnread();
-    intervalRef.current = setInterval(fetchUnread, 8000);
+    intervalRef.current = setInterval(fetchUnread, 30000);
+
+    // Pause polling when tab is hidden, resume when visible
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null; }
+      } else {
+        fetchUnread();
+        if (!intervalRef.current) intervalRef.current = setInterval(fetchUnread, 30000);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [location.pathname, fetchUnread]);
 

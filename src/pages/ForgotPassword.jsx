@@ -14,6 +14,7 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [emailWarning, setEmailWarning] = useState(false);
   const navigate = useNavigate();
 
   // Resend cooldown timer
@@ -28,6 +29,7 @@ const ForgotPassword = () => {
     if (!email || isLoading) return;
     setIsLoading(true);
     setError('');
+    setEmailWarning(false);
     try {
       const res = await axios.post(`${API_BASE}/api/auth/forgot-password`, { email });
       if (res.data.simulatedOtp) {
@@ -35,6 +37,7 @@ const ForgotPassword = () => {
         setCode(otpDigits);
         setSandboxCode(res.data.simulatedOtp);
       }
+      setEmailWarning(res.data.emailWarning || false);
       setStep(2);
       setResendCooldown(30);
     } catch (err) {
@@ -84,10 +87,12 @@ const ForgotPassword = () => {
 
   const handleResend = useCallback(async () => {
     if (resendCooldown > 0) return;
+    setEmailWarning(false);
     try {
       const res = await axios.post(`${API_BASE}/api/auth/forgot-password`, { email });
       setResendCooldown(30);
       setError('');
+      setEmailWarning(res.data.emailWarning || false);
       setSuccess('New code sent to your email!');
       if (res.data.simulatedOtp) {
         setSandboxCode(res.data.simulatedOtp);
@@ -202,6 +207,13 @@ const ForgotPassword = () => {
 
         {step === 2 && (
           <>
+            {emailWarning && (
+              <div className="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl text-sm text-center">
+                <p className="font-bold">⚠️ Email delivery was slow</p>
+                <p className="mt-1">If you don't receive the code within a minute, click <strong>"Resend Code"</strong> below.</p>
+              </div>
+            )}
+
             {sandboxCode ? (
               <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl text-sm mb-6 text-center">
                 <p className="font-bold">✅ Dev Mode: OTP auto-filled!</p>

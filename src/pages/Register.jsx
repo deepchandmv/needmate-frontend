@@ -44,14 +44,16 @@ const Register = () => {
       });
 
       // Registration step 1 done — navigate to OTP verification page
+      // Even if email delivery had a warning, still navigate (user can resend OTP)
       navigate('/verify-registration', { 
         state: { 
           email: formData.email,
-          simulatedOtp: res.data.simulatedOtp || null  // dev mode only
+          simulatedOtp: res.data.simulatedOtp || null,  // dev mode only
+          emailWarning: res.data.emailWarning || false
         } 
       });
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

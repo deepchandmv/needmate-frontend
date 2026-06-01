@@ -56,8 +56,25 @@ const Chat = () => {
   useEffect(() => {
     if (!activeNeedId) return;
     fetchMessages(activeNeedId);
-    const intervalId = setInterval(() => { fetchMessages(activeNeedId); }, 3000);
-    return () => clearInterval(intervalId);
+    const intervalId = setInterval(() => { fetchMessages(activeNeedId); }, 5000);
+
+    // Pause polling when tab is hidden, resume when visible
+    let visInterval = intervalId;
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(visInterval);
+      } else {
+        fetchMessages(activeNeedId);
+        visInterval = setInterval(() => { fetchMessages(activeNeedId); }, 5000);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(visInterval);
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [activeNeedId, fetchMessages]);
 
   const handleSendMessage = useCallback(async (e) => {
